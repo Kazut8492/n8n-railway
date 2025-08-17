@@ -1,13 +1,12 @@
-# n8n 公式イメージを土台にする（最も簡単）
 FROM n8nio/n8n:latest
 
-# ffmpeg を追加
 USER root
-RUN apt-get update \
- && apt-get install -y --no-install-recommends ffmpeg \
- && rm -rf /var/lib/apt/lists/*
-
-# n8n の実行ユーザーに戻す
+RUN set -eux; \
+  if command -v apk >/dev/null 2>&1; then \
+    apk add --no-cache ffmpeg; \
+  elif command -v apt-get >/dev/null 2>&1; then \
+    apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*; \
+  else \
+    echo "No supported package manager found" >&2; exit 1; \
+  fi
 USER node
-
-# 公式イメージは CMD/EXPOSE 済み（5678）。特に追記不要。
